@@ -30,6 +30,14 @@ class DoctrineODMServiceProvider implements ServiceProviderInterface
         );
         $app['odm.options'] = array();
         $app['odm.dm'] = $app->share(function ($app) {
+            foreach ($app['odm.driver.configs'] as $name => $options) {
+                $driver = DoctrineODMServiceProvider::getMetadataDriver($options['type'], $options['path']);
+                $app['odm.chain_driver']->addDriver($driver, $options['namespace']);
+                if ($name === "default") {
+                    $app['odm.chain_driver']->setDefaultDriver($driver);
+                }
+            }
+            $app['odm.config']->setMetadataDriverImpl($app['odm.chain_driver']);
             $dm = DocumentManager::create($app['odm.connection'], $app['odm.config']);
             return $dm;
         });
@@ -45,23 +53,14 @@ class DoctrineODMServiceProvider implements ServiceProviderInterface
         $app['odm.proxy_dir'] = function () {
             return sys_get_temp_dir();
         };
-        $app['odm.document_classes_dir'] = function () {
-            throw new Exception("\$app['odm.document_classes_dir'] must be configured");
-        };
-        $app['odm.document_classes_namespace'] = $app['odm.document_classes_dir'] = function () {
-            throw new Exception("\$app['odm.document_classes_namespace'] must be configured");
-        };
         $app['odm.proxy_namespace'] = 'Proxies';
         $app['odm.hydrator_dir'] = function () {
             return sys_get_temp_dir();
         };
         $app['odm.hydrator_namespace'] = 'Hydrators';
-        $app['odm.metadata_driver'] = $app->share(function ($app) {
-            AnnotationDriver::registerAnnotationClasses();
-            return AnnotationDriver::create($app['odm.document_classes_dir']);
-        });
+
         $app['odm.chain_driver'] = $app->share(function ($app) {
-            $driver = new MappingDriverChain;
+            return new MappingDriverChain;
         });
         $app['odm.driver.configs'] = array();
         $app['odm.config'] = $app->share(function ($app) {
@@ -70,7 +69,8 @@ class DoctrineODMServiceProvider implements ServiceProviderInterface
             $config->setProxyNamespace($app['odm.proxy_namespace']);
             $config->setHydratorDir($app['odm.hydrator_dir']);
             $config->setHydratorNamespace($app['odm.hydrator_namespace']);
-            $config->setMetadataDriverImpl($app['odm.metadata_driver']);
+            $config->setAutoGenerateHydratorClasses($app['debug']);
+            $config->setAutoGenerateProxyClasses($app['debug']);
             return $config;
         });
     }

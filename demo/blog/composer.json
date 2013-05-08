@@ -1,0 +1,16 @@
+{
+    "require":{
+        "silex/silex":"1.*",
+        "mparaiso/doctrineodmserviceprovider":"@dev",
+        "symfony/form":"2.2.*",
+        "symfony/translation":"2.2.*",
+        "symfony/validator":"2.2.*",
+        "twig/twig":"*",
+        "symfony/twig-bridge":"*"
+    },
+    "autoload":{
+        "psr-0":{
+            "":["app"]
+        }
+    }
+}

@@ -31,7 +31,7 @@
       <file leaf-file-name="composer.json" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/demo/blog/composer.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+            <state line="12" column="22" selection-start="332" selection-end="332" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -40,7 +40,7 @@
       <file leaf-file-name="composer.json" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/composer.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="21" column="19" selection-start="513" selection-end="513" vertical-scroll-proportion="0.68653846">
+            <state line="19" column="36" selection-start="448" selection-end="448" vertical-scroll-proportion="0.44423077">
               <folding />
             </state>
           </provider>
@@ -309,14 +309,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/demo/blog/composer.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+        <state line="12" column="22" selection-start="332" selection-end="332" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/composer.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="19" selection-start="513" selection-end="513" vertical-scroll-proportion="0.68653846">
+        <state line="19" column="36" selection-start="448" selection-end="448" vertical-scroll-proportion="0.44423077">
           <folding />
         </state>
       </provider>

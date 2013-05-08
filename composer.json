@@ -19,7 +19,7 @@
     "php": ">=5.3.3",
     "doctrine/mongodb-odm": "1.*",
     "mparaiso/consoleserviceprovider":"*@dev",
-    "silex/silex":"~1.*"
+    "silex/silex":"1.*"
   },
   "suggest": {},
   "autoload": {

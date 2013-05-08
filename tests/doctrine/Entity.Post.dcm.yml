@@ -1,0 +1,12 @@
+# Doctrine.Tests.ORM.Mapping.User.dcm.yml
+Entity\Post:
+  type: entity
+  table: posts
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    title:
+      type: text

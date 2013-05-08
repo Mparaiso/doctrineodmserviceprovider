@@ -3,22 +3,20 @@
 namespace Mparaiso\Provider;
 
 use Silex\ServiceProviderInterface;
+use Doctrine\ORM\Mapping\Driver\DriverChain;
+use Doctrine\ODM\MongoDB\Mapping\Driver\XmlDriver;
+use Doctrine\ODM\MongoDB\Mapping\Driver\YamlDriver;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\MongoDB\Connection;
 use Exception;
 use Doctrine\ODM\MongoDB\Mapping\Driver\AnnotationDriver;
 use Doctrine\ODM\MongoDB\Configuration;
 use Doctrine\ODM\MongoDB\DocumentManager;
+use Mparaiso\Doctrine\Common\Persistence\Mapping\Driver\MappingDriverChain;
 use Silex\Application;
 
 class DoctrineODMServiceProvider implements ServiceProviderInterface
 {
-    protected $driver;
-
-    function __construct($driver = "mongo")
-    {
-        $this->driver = $driver;
-    }
 
 
     /**
@@ -36,8 +34,7 @@ class DoctrineODMServiceProvider implements ServiceProviderInterface
             return $dm;
         });
         $app['odm.connection.class'] = function () {
-            if ($this->driver === "mongo")
-                return 'Doctrine\MongoDB\Connection';
+            return '\Doctrine\MongoDB\Connection';
         };
         $app['odm.connection'] = $app->share(function ($app) {
             $app['odm.options'] = array_merge($app['odm.options.default'], $app['odm.options']);
@@ -63,6 +60,10 @@ class DoctrineODMServiceProvider implements ServiceProviderInterface
             AnnotationDriver::registerAnnotationClasses();
             return AnnotationDriver::create($app['odm.document_classes_dir']);
         });
+        $app['odm.chain_driver'] = $app->share(function ($app) {
+            $driver = new MappingDriverChain;
+        });
+        $app['odm.driver.configs'] = array();
         $app['odm.config'] = $app->share(function ($app) {
             $config = new Configuration();
             $config->setProxyDir($app['odm.proxy_dir']);
@@ -72,6 +73,21 @@ class DoctrineODMServiceProvider implements ServiceProviderInterface
             $config->setMetadataDriverImpl($app['odm.metadata_driver']);
             return $config;
         });
+    }
+
+    static function getMetadataDriver($type = "annotations", $classpath)
+    {
+        switch ($type) {
+            case "yaml":
+                return new YamlDriver($classpath);
+                break;
+            case "xml":
+                return new XmlDriver($classpath);
+                break;
+            default:
+                AnnotationDriver::registerAnnotationClasses();
+                return AnnotationDriver::create($classpath);
+        }
     }
 
     /**

@@ -2,11 +2,17 @@
     "require":{
         "silex/silex":"1.*",
         "mparaiso/doctrineodmserviceprovider":"@dev",
+        "mparaiso/simpleuserserviceprovider":"@dev",
+        "mparaiso/consoleserviceprovider":"@dev",
+        "mparaiso/routeconfigserviceprovider":"@dev",
+        "doctrine/mongodb-odm":"@dev",
         "symfony/form":"2.2.*",
         "symfony/translation":"2.2.*",
         "symfony/validator":"2.2.*",
         "twig/twig":"*",
-        "symfony/twig-bridge":"*"
+        "symfony/twig-bridge":"*",
+        "doctrine/mongodb-odm-bundle":"*@dev",
+        "symfony/security":"2.2.*"
     },
     "autoload":{
         "psr-0":{

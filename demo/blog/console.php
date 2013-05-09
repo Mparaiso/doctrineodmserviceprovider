@@ -1,0 +1,1 @@
+<?php$autoload = require __DIR__ . '/vendor/autoload.php';$autoload->add("", __DIR__ . "/app");$app = new App(array('debug' => TRUE, 'session.test' => TRUE));$app->boot();$app['mp.user.boot_commands'] ();$app['odm.boot_commands']();$app['console']->run();

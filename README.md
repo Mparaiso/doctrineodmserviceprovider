@@ -3,7 +3,7 @@ Doctrine ORM Service Provider
 
 [![Build Status](https://travis-ci.org/Mparaiso/doctrineormserviceprovider.png?branch=master)](https://travis-ci.org/Mparaiso/doctrineormserviceprovider)
 
-Doctrine ODM servicep provider for silex
+Doctrine ODM service provider for silex
 ----------------------------------------
 
 author : M.Paraiso

@@ -1,0 +1,26 @@
+{% extends 'blog.layout.html.twig' %}
+{% block blog_content %}
+    <section>
+        <header>
+            <h3>Posts</h3>
+        </header>
+        {% for post in posts %}
+            <article>
+                <header>
+                    <h4><a href="{{ path('post_read',{id:post.id}) }}">{{ post.title }}</a></h4>
+                    <time datetime="{{ post.createdAt|date('Y-m-d') }}">
+                        <small>{{ post.createdAt|date('Y-m-d') }}</small>
+                    </time>
+                </header>
+                <p>{{ post.body }}</p>
+            </article>
+        {% endfor %}
+    </section>
+    <section>
+        <div>
+            <a href="{{ path('post_create') }}">
+                <button type="button">Create new Post</button>
+            </a>
+        </div>
+    </section>
+{% endblock %}

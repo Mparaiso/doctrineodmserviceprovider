@@ -1,0 +1,20 @@
+{% extends 'blog.layout.html.twig' %}
+{% block blog_content %}
+    <section>
+        <article>
+            <header>
+                <h3>{{ post.title }}</h3>
+                <time datetime="{{ post.createdAt|date('Y-m-d') }}">
+                    <small>{{ post.createdAt|date('Y-m-d') }}</small>
+                </time>
+            </header>
+            <p>{{ post.body }}</p>
+        </article>
+    </section>
+    <section>
+        <a href="{{ path('home') }}">
+            <button>Index</button>
+        </a>
+    </section>
+{% endblock %}
+

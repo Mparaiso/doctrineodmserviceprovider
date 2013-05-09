@@ -1,9 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://www.netbeans.org/ns/project/1">
-    <type>org.netbeans.modules.php.project</type>
-    <configuration>
-        <data xmlns="http://www.netbeans.org/ns/php-project/1">
-            <name>mparaiso-doctrineormserviceprovider</name>
-        </data>
-    </configuration>
-</project>
+<?php
+use Silex\Application;
+
+
+class App extends Application
+{
+    function __construct(array $values = array())
+    {
+        parent::__construct($values);
+        $config = new Config;
+        $this->register($config);
+        $this->mount("/",$config);
+
+    }
+
+}

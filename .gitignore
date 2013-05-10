@@ -8,3 +8,4 @@ composer.lock
 /nbproject/private/
 .settings/*
 nbproject
+.buildpath/*

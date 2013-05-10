@@ -3,6 +3,8 @@
 namespace Mparaiso\Provider;
 
 use Doctrine\Common\Persistence\Mapping\Driver\MappingDriverChain;
+use Doctrine\MongoDB\Configuration as Configuration2;
+use Doctrine\MongoDB\Connection;
 use Doctrine\ODM\MongoDB\Configuration;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ODM\MongoDB\Mapping\Driver\AnnotationDriver;
@@ -21,11 +23,15 @@ class DoctrineODMMongoDBServiceProvider implements ServiceProviderInterface
      * {@inheritdoc}
      */
     public function register(Application $app) {
-        $app['odm.options.default'] = array(
-            "server" => NULL,
-            "options" => array(),
-        );
-        $app['odm.options'] = array();
+        $app['odm.connection.configuration'] = $app->share(function ($app) {
+                    $config = new Configuration2();
+                    if (isset($app['odm.connection.logger'])) {
+                        $config->setLoggerCallable($app['odm.connection.logger']);
+                    }
+                    return $config;
+                });
+        $app['odm.connection.server'] = null;
+        $app['odm.connection.options'] = array();
         $app['odm.manager_registry'] = $app->share(function($app) {
                     return new ManagerRegistry("manager_registry",
                             array('default' => $app['odm.connection']),
@@ -51,15 +57,11 @@ class DoctrineODMMongoDBServiceProvider implements ServiceProviderInterface
                     }
                     return $dm;
                 });
-        $app['odm.connection.class'] = function () {
-                    return '\Doctrine\MongoDB\Connection';
-                };
+
         $app['odm.connection'] = $app->share(function ($app) {
-                    $app['odm.options'] = array_merge($app['odm.options.default'],
-                            $app['odm.options']);
-                    $class = $app['odm.connection.class'];
-                    $conn = new $class($app['odm.options']['server'],
-                            $app['odm.options']['options']);
+                    $conn = new Connection($app['odm.connection.server'],
+                            $app['odm.connection.options'],
+                            $app['odm.connection.configuration']);
                     return $conn;
                 });
         $app['odm.proxy_dir'] = function () {

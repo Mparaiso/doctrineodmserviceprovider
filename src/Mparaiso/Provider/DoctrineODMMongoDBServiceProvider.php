@@ -2,20 +2,20 @@
 
 namespace Mparaiso\Provider;
 
-use Silex\ServiceProviderInterface;
-use Doctrine\ORM\Mapping\Driver\DriverChain;
-use Doctrine\ODM\MongoDB\Mapping\Driver\XmlDriver;
-use Doctrine\ODM\MongoDB\Mapping\Driver\YamlDriver;
-use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\MongoDB\Connection;
-use Exception;
-use Doctrine\ODM\MongoDB\Mapping\Driver\AnnotationDriver;
+use Doctrine\Common\Persistence\Mapping\Driver\MappingDriverChain;
 use Doctrine\ODM\MongoDB\Configuration;
 use Doctrine\ODM\MongoDB\DocumentManager;
-use Mparaiso\Doctrine\Common\Persistence\Mapping\Driver\MappingDriverChain;
+use Doctrine\ODM\MongoDB\Mapping\Driver\AnnotationDriver;
+use Doctrine\ODM\MongoDB\Mapping\Driver\XmlDriver;
+use Doctrine\ODM\MongoDB\Mapping\Driver\YamlDriver;
+use Mparaiso\Doctrine\ODM\MongoDB\Command\InfoDoctrineODMCommand;
+use Mparaiso\Doctrine\ODM\MongoDB\ManagerRegistry;
 use Silex\Application;
+use Silex\ServiceProviderInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntityValidator;
 
-class DoctrineODMServiceProvider implements ServiceProviderInterface {
+class DoctrineODMMongoDBServiceProvider implements ServiceProviderInterface
+{
 
     /**
      * {@inheritdoc}
@@ -27,30 +27,39 @@ class DoctrineODMServiceProvider implements ServiceProviderInterface {
         );
         $app['odm.options'] = array();
         $app['odm.manager_registry'] = $app->share(function($app) {
-                    
+                    return new ManagerRegistry("manager_registry",
+                            array('default' => $app['odm.connection']),
+                            array('default' => $app['odm.dm']));
                 });
-        // main document manager
         $app['odm.dm'] = $app->share(function ($app) {
                     foreach ($app['odm.driver.configs'] as $name => $options) {
-                        $driver = DoctrineODMServiceProvider::getMetadataDriver($options['type'], $options['path']);
-                        $app['odm.chain_driver']->addDriver($driver, $options['namespace']);
+                        $driver = DoctrineODMMongoDBServiceProvider::getMetadataDriver($options['type'],
+                                        $options['path']);
+                        $app['odm.chain_driver']->addDriver($driver,
+                                $options['namespace']);
                         if ($name === "default") {
                             $app['odm.chain_driver']->setDefaultDriver($driver);
                         }
                     }
                     $app['odm.config']->setMetadataDriverImpl($app['odm.chain_driver']);
-                    $dm = DocumentManager::create($app['odm.connection'], $app['odm.config']);
+                    $dm = DocumentManager::create($app['odm.connection'],
+                                    $app['odm.config']);
+                    # fix the proxy serialization bug @TODO fix it
+                    $proxies = glob($app['odm.proxy_dir'] . "/__CG__*.php");
+                    foreach ($proxies as $proxy) {
+                        require($proxy);
+                    }
                     return $dm;
                 });
-        // connection class
         $app['odm.connection.class'] = function () {
                     return '\Doctrine\MongoDB\Connection';
                 };
-        // connection instance
         $app['odm.connection'] = $app->share(function ($app) {
-                    $app['odm.options'] = array_merge($app['odm.options.default'], $app['odm.options']);
+                    $app['odm.options'] = array_merge($app['odm.options.default'],
+                            $app['odm.options']);
                     $class = $app['odm.connection.class'];
-                    $conn = new $class($app['odm.options']['server'], $app['odm.options']['options']);
+                    $conn = new $class($app['odm.options']['server'],
+                            $app['odm.options']['options']);
                     return $conn;
                 });
         $app['odm.proxy_dir'] = function () {
@@ -68,18 +77,23 @@ class DoctrineODMServiceProvider implements ServiceProviderInterface {
         $app['odm.driver.configs'] = array();
         $app['odm.config'] = $app->share(function ($app) {
                     $config = new Configuration();
-                    //$config->setProxyDir($app['odm.proxy_dir']);
+                    $config->setProxyDir($app['odm.proxy_dir']);
                     $config->setProxyNamespace($app['odm.proxy_namespace']);
                     $config->setHydratorDir($app['odm.hydrator_dir']);
                     $config->setHydratorNamespace($app['odm.hydrator_namespace']);
                     $config->setAutoGenerateHydratorClasses($app['debug']);
-                    //$config->setAutoGenerateProxyClasses($app['debug']);
-                    //$config->set
+                    $config->setAutoGenerateProxyClasses($app['debug']);
                     return $config;
                 });
+        $app['odm.boot_commands'] = $app->protect(function()use($app) {
+                    $app['console']->add(new InfoDoctrineODMCommand);
+                });
+        $app['doctrine_odm.mongodb.unique'] = function($app) {
+                    return new UniqueEntityValidator($app['odm.manager_registry']);
+                };
     }
 
-    static function getMetadataDriver($type = "annotations", $classpath) {
+    static function getMetadataDriver($type, $classpath) {
         switch ($type) {
             case "yaml":
                 return new YamlDriver($classpath);
@@ -97,7 +111,11 @@ class DoctrineODMServiceProvider implements ServiceProviderInterface {
      * {@inheritdoc}
      */
     public function boot(Application $app) {
-        // TODO: Implement boot() method.
+        $arr = $app['validator.validator_service_ids'];
+        $arr['doctrine_odm.mongodb.unique'] = 'doctrine_odm.mongodb.unique';
+        if (!isset($arr['doctrine.orm.validator.unique']))
+            $arr['doctrine.orm.validator.unique'] = 'doctrine_odm.mongodb.unique';
+        $app['validator.validator_service_ids'] = $arr;
     }
 
 }

@@ -1,41 +1,53 @@
-{% extends app.layout %}
-{% block content %}
-
+<html>
+<head>
+</head>
+<body>
     <div class="main">
         {% block blog_header %}
-            <header>
-                <h1>
-                    MongoDB And Silex blog
-                </h1>
+        <header>
+            <h1>
+                <a href="{{path('home')}}">Doctrine ODM MongoDB And Silex blog demo</a>
+            </h1>
 
-                <h2>
-                    A blog about stuffs i like
-                </h2>
-            </header>
+            <h3>
+                Register a new account , write articles about stuffs !
+            </h3>
+        </header>
         {% endblock %}
-
+        <div class='nav'>
+            <a href="{{path('home')}}">Home</a> | 
+        {% block mp_user_menu %}
+        {% include app['mp.user.template.status'] %}
+        </div>
+        
+        {% endblock %}
+        {% block mp_user_flash %}
+        {% include app['mp.user.template.flash'] %}
+        {% endblock %}
         {% block blog_content %}
         {% endblock %}
     </div>
     <style type="text/css">
-        body {
-            font-size: 100%;
-            font-family: Tahoma, sans-serif;
-        }
+    body {
+        font-size: 100%;
+        font-family: Verdana,Tahoma, sans-serif;
+    }
 
-        p {
-            font-family: Times, sans-serif;
-        }
+    p {
+        font-family: Times, sans-serif;
+    }
 
-        .main {
-            margin: auto;
-            width: 60%;
-        }
+    .main {
+        margin: auto;
+        width: 75%;
+    }
 
-        label {
-            min-width: 100px;
-            vertical-align: top;
-            display: inline-block;
-        }
+    label {
+        min-width: 100px;
+        vertical-align: top;
+        display: inline-block;
+    }
     </style>
-{% endblock %}
+</body>
+</html>
+

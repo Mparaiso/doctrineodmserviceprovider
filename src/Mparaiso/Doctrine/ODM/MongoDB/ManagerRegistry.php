@@ -1,12 +1,19 @@
 <?php
 
-namespace Mparaiso\Doctrine\ORM;
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+?>
+<?php
 
-use Doctrine\Common\Persistence\AbstractManagerRegistry;
+namespace Mparaiso\Doctrine\ODM\MongoDB;
+
+//use Doctrine\Common\Persistence\AbstractManagerRegistry;
 use Exception;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry as BaseManagerRegistry;
 
-class DoctrineManagerRegistry implements ManagerRegistry{
+class ManagerRegistry implements BaseManagerRegistry{
 
     protected $managers;
     protected $connections;

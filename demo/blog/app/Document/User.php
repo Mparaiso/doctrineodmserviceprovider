@@ -5,11 +5,14 @@ namespace Document;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
 use Mparaiso\User\Entity\Base\User as BaseUser;
-use Mparaiso\User\Entity\Base\Role;
+use Mparaiso\User\Entity\Base\Role as BaseRole;
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 
 /**
+ * Represent a user document , has many roles , has many posts
+ * 
  * @ODM\Document(collection="blog_user")
+ * 
  */
 class User extends BaseUser implements AdvancedUserInterface
 {
@@ -27,6 +30,24 @@ class User extends BaseUser implements AdvancedUserInterface
     protected $roles;
 
     /**
+     * @ODM\ReferenceMany(targetDocument="Document\Post",cascade="all",mappedBy="user")
+     * @var ArrayCollection
+     */
+    protected $posts;
+
+    function getPosts() {
+        return $this->posts;
+    }
+
+    function addPost(Post $post) {
+        $this->posts[] = $post;
+    }
+
+    function removePost(Post $post) {
+        $this->posts->removeElement($post);
+    }
+
+    /**
      * Get id
      *
      * @return integer
@@ -35,11 +56,11 @@ class User extends BaseUser implements AdvancedUserInterface
         return $this->id;
     }
 
-    public function addRole(Role $role) {
+    public function addRole(BaseRole $role) {
         $this->roles[] = $role;
     }
 
-    public function removeRole(Role $role) {
+    public function removeRole(BaseRole $role) {
         $this->roles->removeElement($role);
     }
 
@@ -50,6 +71,7 @@ class User extends BaseUser implements AdvancedUserInterface
     function __construct() {
         parent::__construct();
         $this->roles = new ArrayCollection;
+        $this->posts = new ArrayCollection;
     }
 
     public function setRoles($roles) {

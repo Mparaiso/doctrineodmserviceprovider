@@ -31,7 +31,7 @@ class Post
     protected $createdAt;
 
     /**
-     * @ODM\ReferenceOne(targetDocument="Mparaiso\User\Entity\User",cascade="all",inversedBy="posts")
+     * @ODM\ReferenceOne(targetDocument="Document\User",cascade="update,merge",inversedBy="posts")
      */
     protected $user;
 
@@ -71,8 +71,9 @@ class Post
         return $this->user;
     }
 
-    function setUser($user) {
+    function setUser(User $user) {
         $this->user = $user;
+        $this->user->addPost($this);
     }
 
 }

@@ -1,5 +1,6 @@
 <?php
 
+use Controller\DefaultController;
 use Mparaiso\Provider\ConsoleServiceProvider;
 use Mparaiso\Provider\DoctrineODMMongoDBServiceProvider;
 use Mparaiso\Provider\RouteConfigServiceProvider;
@@ -8,6 +9,7 @@ use Silex\Application;
 use Silex\ControllerProviderInterface;
 use Silex\Provider\FormServiceProvider;
 use Silex\Provider\HttpCacheServiceProvider;
+use Silex\Provider\MonologServiceProvider;
 use Silex\Provider\SecurityServiceProvider;
 use Silex\Provider\ServiceControllerServiceProvider;
 use Silex\Provider\SessionServiceProvider;
@@ -17,6 +19,7 @@ use Silex\Provider\UrlGeneratorServiceProvider;
 use Silex\Provider\ValidatorServiceProvider;
 use Silex\ServiceProviderInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Component\HttpFoundation\Request;
 
 class Config implements ServiceProviderInterface, ControllerProviderInterface
 {
@@ -26,11 +29,15 @@ class Config implements ServiceProviderInterface, ControllerProviderInterface
      */
     public function connect(Application $app) {
         $controllers = $app['controllers_factory'];
-        /* @var $controllers \Silex\ControllerCollection */
+        /* @var $controllers ControllerCollection */
         $controllers->match("/", 'controller.default:postIndex')->bind("home");
         $controllers->match("/post/create", 'controller.default:postCreate')->bind("post_create");
-        $controllers->match("/post/update/{id}", 'controller.default:postUpdate')->bind("post_update");
-        $controllers->match("/post/delete/{id}", 'controller.default:postDelete')->bind("post_delte");
+        $controllers->match("/post/update/{id}", 'controller.default:postUpdate')
+                ->before($app['must_be_post_owner'])
+                ->bind("post_update");
+        $controllers->match("/post/delete/{id}", 'controller.default:postDelete')
+                ->before($app['must_be_post_owner'])
+                ->bind("post_delete");
         $controllers->match("/post/read/{id}", 'controller.default:postRead')->bind('post_read');
         return $controllers;
     }
@@ -39,6 +46,10 @@ class Config implements ServiceProviderInterface, ControllerProviderInterface
      * {@inheritdoc}
      */
     public function register(Application $app) {
+        $app->register(new MonologServiceProvider,
+                array(
+            'monolog.logfile' => __DIR__ . '/../temp/' . date('Y-m-d') . ".txt",
+        ));
         $app->register(new HttpCacheServiceProvider(),
                 array(
             "http_cache.cache_dir" => __DIR__ . '/../temp/http-cache'
@@ -81,13 +92,12 @@ class Config implements ServiceProviderInterface, ControllerProviderInterface
                                     "logout_path" => "/logout"
                                 ),
                                 "users" => $app['mp.user.user_provider'],
-                            //"context" => "secured"
                             )
                         );
                     })));
         $app->register(new DoctrineODMMongoDBServiceProvider,
                 array(
-            "odm.options" => array("option" => array("db" => "blog_database")),
+            "odm.connection.options" => array("db" => "blog_database"),
             'odm.driver.configs' => $app->share(
                     function ($app) {
                         return array(
@@ -128,20 +138,15 @@ class Config implements ServiceProviderInterface, ControllerProviderInterface
                     }),
             'mp.user.user_provider' => $app->share(function ($app) {
                         $service = new $app['mp.user.user_provider.class'](
-                                $app['mp.user.manager_registry'],
-                                $app['mp.user.user.class'],
+                                $app['mp.user.manager_registry'], $app['mp.user.user.class'],
                                 $app['mp.user.user_provider.property']
                         );
                         return $service;
                     })
         ));
 
-        $app['layout'] = $app->share(function ($app) {
-                    return $app['mp.user.template.layout'];
-                }
-        );
         $app['controller.default'] = $app->share(function() {
-                    return new Controller\DefaultController();
+                    return new DefaultController();
                 }
         );
         $app['listener.post_before_create'] = $app->protect(function(GenericEvent $event) {
@@ -153,13 +158,36 @@ class Config implements ServiceProviderInterface, ControllerProviderInterface
                     $post->setUser($user);
                 }
         );
+        $app['listener.post_before_update'] = $app->protect(function(GenericEvent $event)use($app) {
+                    $post = $event->getSubject();
+                    /* @var $post \Document\Post */
+                    $user = $app['security']->getToken()->getUser();
+                    if ($post->getUser() != $user) {
+                        $app->abort(500, "You cannot edit/delete this resource");
+                    }
+                }
+        );
+
+        $app['must_be_post_owner'] = $app->protect(function(Request $req)use($app) {
+                    $postId = $req->attributes->get('id');
+                    $user = $app['security']->getToken()->getUser();
+                    $post = $app['odm.dm']->getRepository('Document\Post')->findOneBy(array('id' => $postId));
+                    if ($post->getUser() !== $user) {
+                        $app['logger']->alert("Access denied for user $user to post with id $postId ");
+                        $app->abort(500, 'You cant access this resource !');
+                    }
+                }
+        );
     }
 
     /**
      * {@inheritdoc}
      */
     public function boot(Application $app) {
-        $app->on("post_before_create", $app['listener.post_before_create']);
+        $app->on(DefaultController::POST_BEFORE_CREATE, $app['listener.post_before_create']);
+        $app->on(DefaultController::POST_BEFORE_UPDATE, $app['listener.post_before_update']);
+        $app->on(DefaultController::POST_BEFORE_DELETE, $app['listener.post_before_update']);
     }
 
 }
+

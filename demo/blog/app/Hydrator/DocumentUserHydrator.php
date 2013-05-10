@@ -110,6 +110,18 @@ class DocumentUserHydrator implements HydratorInterface
         }
         $this->class->reflFields['roles']->setValue($document, $return);
         $hydratedData['roles'] = $return;
+
+        /** @Many */
+        $mongoData = isset($data['posts']) ? $data['posts'] : null;
+        $return = new \Doctrine\ODM\MongoDB\PersistentCollection(new \Doctrine\Common\Collections\ArrayCollection(), $this->dm, $this->unitOfWork, '$');
+        $return->setHints($hints);
+        $return->setOwner($document, $this->class->fieldMappings['posts']);
+        $return->setInitialized(false);
+        if ($mongoData) {
+            $return->setMongoData($mongoData);
+        }
+        $this->class->reflFields['posts']->setValue($document, $return);
+        $hydratedData['posts'] = $return;
         return $hydratedData;
     }
 }

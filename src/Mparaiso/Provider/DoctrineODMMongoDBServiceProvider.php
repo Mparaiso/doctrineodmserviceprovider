@@ -2,8 +2,9 @@
 
 namespace Mparaiso\Provider;
 
+use Doctrine\Bundle\MongoDBBundle\Logger\Logger;
 use Doctrine\Common\Persistence\Mapping\Driver\MappingDriverChain;
-use Doctrine\MongoDB\Configuration as Configuration2;
+use Doctrine\MongoDB\Configuration as ConnectionConfiguration;
 use Doctrine\MongoDB\Connection;
 use Doctrine\ODM\MongoDB\Configuration;
 use Doctrine\ODM\MongoDB\DocumentManager;
@@ -23,33 +24,52 @@ class DoctrineODMMongoDBServiceProvider implements ServiceProviderInterface
      * {@inheritdoc}
      */
     public function register(Application $app) {
+        // if true debug queries , regenerate proxies and hydrators.
+        $app['odm.debug'] = function($app) {
+                    return $app['debug'];
+                };
+        // connection config
         $app['odm.connection.configuration'] = $app->share(function ($app) {
-                    $config = new Configuration2();
-                    if (isset($app['odm.connection.logger'])) {
-                        $config->setLoggerCallable($app['odm.connection.logger']);
+                    $config = new ConnectionConfiguration;
+                    if ($app['odm.debug'] === TRUE && isset($app['logger'])) {
+                        $config->setLoggerCallable($app['odm.connection.log_function']);
                     }
                     return $config;
-                });
+                }
+        );
+        // log function
+        $app['odm.connection.log_function'] = $app->protect(
+                function($msg)use($app) {
+                    return $app['odm.connection.logger']->logQuery($msg);
+                }
+        );
+        //logger
+        $app['odm.connection.logger'] = $app->share(function($app) {
+                    return new Logger($app['logger']);
+                }
+        );
+        // server connection string
         $app['odm.connection.server'] = null;
+        // mongo client connection options
         $app['odm.connection.options'] = array();
+        // multiple document managers
         $app['odm.manager_registry'] = $app->share(function($app) {
                     return new ManagerRegistry("manager_registry",
                             array('default' => $app['odm.connection']),
                             array('default' => $app['odm.dm']));
                 });
+        // default document manager
         $app['odm.dm'] = $app->share(function ($app) {
                     foreach ($app['odm.driver.configs'] as $name => $options) {
                         $driver = DoctrineODMMongoDBServiceProvider::getMetadataDriver($options['type'],
                                         $options['path']);
-                        $app['odm.chain_driver']->addDriver($driver,
-                                $options['namespace']);
+                        $app['odm.chain_driver']->addDriver($driver, $options['namespace']);
                         if ($name === "default") {
                             $app['odm.chain_driver']->setDefaultDriver($driver);
                         }
                     }
                     $app['odm.config']->setMetadataDriverImpl($app['odm.chain_driver']);
-                    $dm = DocumentManager::create($app['odm.connection'],
-                                    $app['odm.config']);
+                    $dm = DocumentManager::create($app['odm.connection'], $app['odm.config']);
                     # fix the proxy serialization bug @TODO fix it
                     $proxies = glob($app['odm.proxy_dir'] . "/__CG__*.php");
                     foreach ($proxies as $proxy) {
@@ -57,44 +77,57 @@ class DoctrineODMMongoDBServiceProvider implements ServiceProviderInterface
                     }
                     return $dm;
                 });
-
+        // mongo client  connection
         $app['odm.connection'] = $app->share(function ($app) {
                     $conn = new Connection($app['odm.connection.server'],
-                            $app['odm.connection.options'],
-                            $app['odm.connection.configuration']);
+                            $app['odm.connection.options'], $app['odm.connection.configuration']);
                     return $conn;
                 });
+        // proxy classes dir
         $app['odm.proxy_dir'] = function () {
                     return sys_get_temp_dir();
                 };
+        // proxy classes namespace
         $app['odm.proxy_namespace'] = 'Proxies';
+        // hydrators dir
         $app['odm.hydrator_dir'] = function () {
                     return sys_get_temp_dir();
                 };
+        // hydrator namespace
         $app['odm.hydrator_namespace'] = 'Hydrators';
-
+        // main document manager driver
         $app['odm.chain_driver'] = $app->share(function ($app) {
                     return new MappingDriverChain;
                 });
+        // driver configs 
         $app['odm.driver.configs'] = array();
+        // main manager config
         $app['odm.config'] = $app->share(function ($app) {
                     $config = new Configuration();
                     $config->setProxyDir($app['odm.proxy_dir']);
                     $config->setProxyNamespace($app['odm.proxy_namespace']);
                     $config->setHydratorDir($app['odm.hydrator_dir']);
                     $config->setHydratorNamespace($app['odm.hydrator_namespace']);
-                    $config->setAutoGenerateHydratorClasses($app['debug']);
-                    $config->setAutoGenerateProxyClasses($app['debug']);
+                    $config->setAutoGenerateHydratorClasses($app['odm.debug']);
+                    $config->setAutoGenerateProxyClasses($app['odm.debug']);
                     return $config;
                 });
+        // if you want to manage mongo db through the $app[console] , execute this function
         $app['odm.boot_commands'] = $app->protect(function()use($app) {
                     $app['console']->add(new InfoDoctrineODMCommand);
                 });
+        // unique document validator service
         $app['doctrine_odm.mongodb.unique'] = function($app) {
                     return new UniqueEntityValidator($app['odm.manager_registry']);
                 };
     }
 
+    /**
+     * Helper method to get metadata drivers
+     * @param type $type
+     * @param type $classpath
+     * @return \Doctrine\ODM\MongoDB\Mapping\Driver\YamlDriver|\Doctrine\ODM\MongoDB\Mapping\Driver\XmlDriver
+     */
     static function getMetadataDriver($type, $classpath) {
         switch ($type) {
             case "yaml":

@@ -1,7 +1,9 @@
-include.path=${php.global.include.path}
-php.version=PHP_53
-source.encoding=UTF-8
-src.dir=.
-tags.asp=false
-tags.short=true
-web.root=.
+<?php
+
+$autoload = require __DIR__ . "/../vendor/autoload.php";
+
+$autoload->add("", __DIR__ . "/../app");
+
+$app = new App(array("debug" => true));
+
+$app['http_cache']->run();

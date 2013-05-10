@@ -4,3 +4,4 @@ tests/cache
 tests/Entity
 tests/database.sqlite
 composer.lock
+temp/*

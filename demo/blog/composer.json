@@ -1,16 +1,29 @@
 {
-    "require":{
-        "silex/silex":"1.*",
-        "mparaiso/doctrineodmserviceprovider":"@dev",
-        "symfony/form":"2.2.*",
-        "symfony/translation":"2.2.*",
-        "symfony/validator":"2.2.*",
-        "twig/twig":"*",
-        "symfony/twig-bridge":"*"
+    "name": "mparaiso/doctrineodm-demoproject",
+    "description": "Doctrine ODM service provider demo : a blog application",
+    "license": "GPL-2.0",
+    "require": {
+        "silex/silex": "1.*",
+        "mparaiso/doctrineodmserviceprovider": "@dev",
+        "mparaiso/simpleuserserviceprovider": "@dev",
+        "mparaiso/consoleserviceprovider": "@dev",
+        "mparaiso/routeconfigserviceprovider": "@dev",
+        "doctrine/mongodb-odm": "1.0.*@dev",
+        "symfony/form": "2.2.*",
+        "symfony/translation": "2.2.*",
+        "symfony/validator": "2.2.*",
+        "twig/twig": "*",
+        "symfony/twig-bridge": "*",
+        "doctrine/mongodb-odm-bundle": "@dev",
+        "symfony/security": "2.2.*",
+        "symfony/yaml": "2.2.*",
+        "monolog/monolog": "*",
+        "symfony/monolog-bridge": "2.2.*"
+
     },
-    "autoload":{
-        "psr-0":{
-            "":["app"]
+    "autoload": {
+        "psr-0": {
+            "": ["app"]
         }
     }
 }

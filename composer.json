@@ -1,29 +1,30 @@
 {
-  "name": "mparaiso/doctrineodmserviceprovider",
-  "description": "Doctrine ODM service provider for Silex",
-  "keywords": [
-    "silex",
-    "extensions",
-    "orm",
-    "doctrine"
-  ],
-  "homepage": "https://github.com/Mparaiso/doctrineodmserviceprovider",
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "MParaiso",
-      "email": "mparaiso@online.fr"
+    "name":"mparaiso/doctrineodmserviceprovider",
+    "description":"Doctrine ODM service provider for Silex",
+    "keywords":[
+        "silex",
+        "extensions",
+        "orm",
+        "doctrine"
+    ],
+    "homepage":"https://github.com/Mparaiso/doctrineodmserviceprovider",
+    "license":"MIT",
+    "authors":[
+        {
+            "name":"MParaiso",
+            "email":"mparaiso@online.fr"
+        }
+    ],
+    "require":{
+        "php":">=5.3.3",
+        "mparaiso/consoleserviceprovider":"*@dev",
+        "doctrine/mongodb-odm-bundle":"3.*@dev",
+        "silex/silex":"1.*"
+    },
+    "suggest":{},
+    "autoload":{
+        "psr-0":{
+            "Mparaiso":"src/"
+        }
     }
-  ],
-  "require": {
-    "php": ">=5.3.3",
-    "mparaiso/consoleserviceprovider":"*@dev",
-    "silex/silex":"1.*"
-  },
-  "suggest": {},
-  "autoload": {
-    "psr-0": {
-      "Mparaiso": "src/"
-    }
-  }
 }

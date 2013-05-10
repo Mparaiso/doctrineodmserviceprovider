@@ -5,3 +5,6 @@ tests/Entity
 tests/database.sqlite
 composer.lock
 .idea/*
+/nbproject/private/
+.settings/*
+nbproject

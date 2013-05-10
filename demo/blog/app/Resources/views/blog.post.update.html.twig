@@ -1,0 +1,21 @@
+{% extends 'blog.layout.html.twig' %}
+{% block blog_content %}
+<section>
+    <header>
+        <h3>Update Post</h3>
+    </header>
+    <section>
+        <form action="" method="POST" name="{{ form.vars.name }}" {{ form_enctype(form) }}>
+            {{ form_row(form.title,{attr:{style:'width:400px;'} }) }}
+            {{ form_row(form.body,{attr:{style:'width:400px;',rows:10} }) }}
+            {{ form_rest(form)}}
+            <input type="submit" value="Update">
+            <a href="{{ path('post_delete',{id:post.id}) }}">
+                <button type="button">Delete</button></a>
+                <a href="{{ path('home') }}">
+                    <button type="button">Cancel</button>
+                </a>
+            </form>
+        </section>
+    </section>
+    {% endblock %}

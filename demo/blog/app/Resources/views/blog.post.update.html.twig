@@ -2,7 +2,7 @@
 {% block blog_content %}
     <section>
         <header>
-            <h3>Write new post</h3>
+            <h3>Update Post</h3>
         </header>
         <section>
             <form action="" method="POST" name="{{ form.vars.name }}" {{ form_enctype(form) }}>
@@ -10,6 +10,9 @@
                 {{ form_row(form.body)}}
                 {{ form_rest(form)}}
                 <input type="submit" value="Create">
+                 <a href="{{ path('post_delete',{id:post.id}) }}">
+                    <button type="button">Delete</button>
+                </a>
                 <a href="{{ path('home') }}">
                     <button type="button">Cancel</button>
                 </a>

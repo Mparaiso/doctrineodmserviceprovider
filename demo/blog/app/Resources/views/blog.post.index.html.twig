@@ -11,6 +11,9 @@
                     <time datetime="{{ post.createdAt|date('Y-m-d') }}">
                         <small>{{ post.createdAt|date('Y-m-d') }}</small>
                     </time>
+                        <div class='author'>
+                            <small>{{ post.user.username|default('anonymous')}}</small>
+                        </div>    
                 </header>
                 <p>{{ post.body }}</p>
             </article>
@@ -18,9 +21,11 @@
     </section>
     <section>
         <div>
+            {% if app.security.isGranted('IS_AUTHENTICATED_FULLY') %}
             <a href="{{ path('post_create') }}">
                 <button type="button">Create new Post</button>
             </a>
+            {% endif %}
         </div>
     </section>
 {% endblock %}

@@ -12,6 +12,11 @@
         </article>
     </section>
     <section>
+        {% if post.id in app.security.token.user.posts %}
+            <a href='{{path('post_update',{id:post.id}}'>
+                <button>Edit Post</button>
+            </a>
+        {% endif %}
         <a href="{{ path('home') }}">
             <button>Index</button>
         </a>

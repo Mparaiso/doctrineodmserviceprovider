@@ -14,7 +14,7 @@ use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntityValidator;
 
-class DoctrineODMServiceProvider implements ServiceProviderInterface
+class DoctrineODMMongoDBServiceProvider implements ServiceProviderInterface
 {
 
     /**
@@ -33,7 +33,7 @@ class DoctrineODMServiceProvider implements ServiceProviderInterface
                 });
         $app['odm.dm'] = $app->share(function ($app) {
                     foreach ($app['odm.driver.configs'] as $name => $options) {
-                        $driver = DoctrineODMServiceProvider::getMetadataDriver($options['type'],
+                        $driver = DoctrineODMMongoDBServiceProvider::getMetadataDriver($options['type'],
                                         $options['path']);
                         $app['odm.chain_driver']->addDriver($driver,
                                 $options['namespace']);

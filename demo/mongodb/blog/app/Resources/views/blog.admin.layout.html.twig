@@ -1,0 +1,10 @@
+{% extends 'blog.layout.html.twig' %}
+{% block blog_content %}
+<ul class='inline'>
+    <li><a href="{{path('mp_crud_post_index')}}">Posts</a></li>
+    <li><a href="{{path('mp_crud_user_index')}}">Users</a></li>
+    <li><a href="{{path('mp_crud_role_index')}}">Roles</a></li>
+</ul>
+    {% block mp_crud_content %}
+    {% endblock %}
+{% endblock %}

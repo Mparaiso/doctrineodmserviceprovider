@@ -8,6 +8,7 @@
         "mparaiso/simpleuserserviceprovider": "@dev",
         "mparaiso/consoleserviceprovider": "@dev",
         "mparaiso/routeconfigserviceprovider": "@dev",
+        "mparaiso/crudserviceprovider":"@dev",
         "doctrine/mongodb-odm": "1.0.*@dev",
         "symfony/form": "2.2.*",
         "symfony/translation": "2.2.*",

@@ -19,6 +19,10 @@ class DefaultController
     const POST_BEFORE_DELETE = "post_before_delete";
     const POST_AFTER_DELETE = "post_after_delete";
 
+    function __construct(Base $service) {
+        $this->service = $service;
+    }
+
     /**
      * list posts
      * @param Application $app
@@ -28,9 +32,8 @@ class DefaultController
         $dm = $app['odm.dm'];
         /* @var $dm DocumentManager */
         $posts = $dm->getRepository('Document\Post')->findBy(array(), array("createdAt" => "DESC"));
-        return $app['twig']->render('blog.post.index.html.twig',
-                        array(
-                    "posts" => $posts,
+        return $app['twig']->render('blog.post.index.html.twig', array(
+              "posts" => $posts,
         ));
     }
 
@@ -48,22 +51,19 @@ class DefaultController
             $form->bind($req);
             if ($form->isValid()) {
                 $model->setCreatedAt(new DateTime());
-                $app['dispatcher']->dispatch(self::POST_BEFORE_CREATE,
-                        new GenericEvent($model, array('form' => $form, 'app' => $app)));
+                $app['dispatcher']->dispatch(self::POST_BEFORE_CREATE, new GenericEvent($model, array(
+                  'form' => $form, 'app'  => $app)));
                 $app['odm.dm']->persist($model);
                 $app['odm.dm']->flush();
-                $app['dispatcher']->dispatch(self::POST_AFTER_CREATE,
-                        new GenericEvent($model, array('form' => $form, 'app' => $app)));
-                $app['session']->getFlashBag()->add('success',
-                        "Resource with title \" " . $model->getTitle() . " \" successfully created");
+                $app['dispatcher']->dispatch(self::POST_AFTER_CREATE, new GenericEvent($model, array(
+                  'form' => $form, 'app'  => $app)));
+                $app['session']->getFlashBag()->add('success', "Resource with title \" " . $model->getTitle() . " \" successfully created");
 
-                return $app->redirect($app['url_generator']->generate('post_read',
-                                        array('id' => $model->getId())));
+                return $app->redirect($app['url_generator']->generate('post_read', array('id' => $model->getId())));
             }
         }
-        return $app['twig']->render('blog.post.create.html.twig',
-                        array(
-                    "form" => $form->createView(),
+        return $app['twig']->render('blog.post.create.html.twig', array(
+              "form" => $form->createView(),
         ));
     }
 
@@ -83,25 +83,22 @@ class DefaultController
             $form->bind($req);
             if ($form->isValid()) {
                 $model->setCreatedAt(new DateTime());
-                $app['dispatcher']->dispatch(self::POST_BEFORE_UPDATE,
-                        new GenericEvent($model, array('form' => $form, 'app' => $app)));
+                $app['dispatcher']->dispatch(self::POST_BEFORE_UPDATE, new GenericEvent($model, array(
+                  'form' => $form, 'app'  => $app)));
                 $app['odm.dm']->persist($model);
                 $app['odm.dm']->flush();
-                $app['dispatcher']->dispatch(self::POST_AFTER_UPDATE,
-                        new GenericEvent($model, array('form' => $form, 'app' => $app)));
-                $app['session']->getFlashBag()->add('success',
-                        "Resource with id \" " . $model->getTitle() . " \" updated successfully !");
-                return $app->redirect($app['url_generator']->generate('post_read',
-                                        array('id' => $model->getId())));
+                $app['dispatcher']->dispatch(self::POST_AFTER_UPDATE, new GenericEvent($model, array(
+                  'form' => $form, 'app'  => $app)));
+                $app['session']->getFlashBag()->add('success', "Resource with id \" " . $model->getTitle() . " \" updated successfully !");
+                return $app->redirect($app['url_generator']->generate('post_read', array('id' => $model->getId())));
             }
         }
-        return $app['twig']->render('blog.post.update.html.twig',
-                        array(
-                    "form" => $form->createView(),
-                    "post" => $model
+        return $app['twig']->render('blog.post.update.html.twig', array(
+              "form" => $form->createView(),
+              "post" => $model
         ));
     }
-    
+
     /**
      * delete a post
      * @param \Symfony\Component\HttpFoundation\Request $req
@@ -115,19 +112,15 @@ class DefaultController
             $app->abort(404);
         }
         if ($req->getMethod() === "POST") {
-            $app['dispatcher']->dispatch(self::POST_BEFORE_CREATE,
-                    new GenericEvent($post, array('app' => $app)));
+            $app['dispatcher']->dispatch(self::POST_BEFORE_CREATE, new GenericEvent($post, array('app' => $app)));
             $app['odm.dm']->remove($post);
             $app['odm.dm']->flush();
-            $app['dispatcher']->dispatch(self::POST_AFTER_DELETE,
-                    new GenericEvent($post, array('app' => $app)));
-            $app['session']->getFlashBag()->add('success',
-                    "Resource with id \" " . $post->gettitle() . " \" deleted successfully !");
+            $app['dispatcher']->dispatch(self::POST_AFTER_DELETE, new GenericEvent($post, array('app' => $app)));
+            $app['session']->getFlashBag()->add('success', "Resource with id \" " . $post->gettitle() . " \" deleted successfully !");
             return $app->redirect($app['url_generator']->generate('home'));
         }
-        return $app['twig']->render('blog.post.delete.html.twig',
-                        array(
-                    "post" => $post,
+        return $app['twig']->render('blog.post.delete.html.twig', array(
+              "post" => $post,
         ));
     }
 
@@ -141,9 +134,8 @@ class DefaultController
         $post = $app['odm.dm']->find('Document\Post', $id);
         if ($post === NULL)
             $app->abort(404, 'Not found');
-        return $app['twig']->render('blog.post.read.html.twig',
-                        array(
-                    "post" => $post,
+        return $app['twig']->render('blog.post.read.html.twig', array(
+              "post" => $post,
         ));
     }
 

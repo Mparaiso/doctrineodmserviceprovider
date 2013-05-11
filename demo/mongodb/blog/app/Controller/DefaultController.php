@@ -21,6 +21,10 @@ class DefaultController implements ControllerProviderInterface
     const POST_BEFORE_DELETE = "post_before_delete";
     const POST_AFTER_DELETE = "post_after_delete";
 
+    function __construct(Base $service) {
+        $this->service = $service;
+    }
+
     /**
      * Post Service
      * @var Base

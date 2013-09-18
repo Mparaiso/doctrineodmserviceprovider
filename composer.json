@@ -17,7 +17,6 @@
     ],
     "require":{
         "php":">=5.3.3",
-        "mparaiso/consoleserviceprovider":"*@dev",
         "doctrine/mongodb-odm-bundle":"3.*@dev",
         "silex/silex":"1.*"
     },

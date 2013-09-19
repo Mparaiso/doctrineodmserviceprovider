@@ -80,9 +80,17 @@ class DoctrineODMMongoDBServiceProvider implements ServiceProviderInterface
             }
             return $dm;
         });
+        $app["odm.mongoclient"] = $app->share(function ($app) {
+            $client = new \MongoClient($app['odm.connection.server'], $app['odm.connection.options']);
+            if (isset($app["odm.connection.dbname"])) {
+                $client->selectDB($app["odm.connection.dbname"]);
+            }
+            return $client;
+
+        });
         // mongo client  connection
         $app['odm.connection'] = $app->share(function ($app) {
-            $conn = new Connection($app['odm.connection.server'], $app['odm.connection.options'], $app['odm.connection.configuration']);
+            $conn = new Connection($app["odm.mongoclient"], $app['odm.connection.options'], $app['odm.connection.configuration']);
             return $conn;
         });
         // proxy classes dir

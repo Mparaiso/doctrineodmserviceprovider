@@ -36,7 +36,7 @@ class DoctrineODMMongoDBServiceProvider implements ServiceProviderInterface
         // connection config
         $app['odm.connection.configuration'] = $app->share(function ($app) {
                 $config = new ConnectionConfiguration;
-                if ($app['odm.debug'] === TRUE && isset($app['logger'])) {
+                if ($app['odm.debug'] === TRUE && isset($app['logger']) && isset($app['odm.connection.logger'])) {
                     $config->setLoggerCallable($app['odm.connection.log_function']);
                 }
                 return $config;
@@ -48,15 +48,22 @@ class DoctrineODMMongoDBServiceProvider implements ServiceProviderInterface
                 return $app['odm.connection.logger']->logQuery($msg);
             }
         );
-        //logger
-        $app['odm.connection.logger'] = $app->share(function ($app) {
-                return new Logger($app['logger']);
-            }
-        );
+        //if (class_exists('Doctrine\Bundle\MongoDBBundle\Logger\Logger')) {
+            //logger
+            $app['odm.connection.logger'] = $app->share(function ($app) {
+                    return new Logger($app['logger']);
+                }
+            );
+        //}
         // server connection string
-        $app['odm.connection.server'] = null;
+        $app['odm.connection.server'] = "";
         // mongo client connection options
-        $app['odm.connection.options'] = array();
+        $app['odm.connection.options'] = array('connect' => TRUE);
+        // mongo client  connection
+        $app['odm.connection'] = $app->share(function ($app) {
+            $conn = new Connection($app["odm.connection.server"], $app['odm.connection.options'], $app['odm.connection.configuration']);
+            return $conn;
+        });
         // multiple document managers
         $app['odm.manager_registry'] = $app->share(function ($app) {
             return new ManagerRegistry("manager_registry", array('default' => $app['odm.connection']), array(
@@ -78,21 +85,10 @@ class DoctrineODMMongoDBServiceProvider implements ServiceProviderInterface
             foreach ($proxies as $proxy) {
                 require($proxy);
             }
+            /* @var DocumentManager $dm */
             return $dm;
         });
-        $app["odm.mongoclient"] = $app->share(function ($app) {
-            $client = new \MongoClient($app['odm.connection.server'], $app['odm.connection.options']);
-            if (isset($app["odm.connection.dbname"])) {
-                $client->selectDB($app["odm.connection.dbname"]);
-            }
-            return $client;
 
-        });
-        // mongo client  connection
-        $app['odm.connection'] = $app->share(function ($app) {
-            $conn = new Connection($app["odm.mongoclient"], $app['odm.connection.options'], $app['odm.connection.configuration']);
-            return $conn;
-        });
         // proxy classes dir
         $app['odm.proxy_dir'] = function () {
             return sys_get_temp_dir();
@@ -120,6 +116,7 @@ class DoctrineODMMongoDBServiceProvider implements ServiceProviderInterface
             $config->setHydratorNamespace($app['odm.hydrator_namespace']);
             $config->setAutoGenerateHydratorClasses($app['odm.debug']);
             $config->setAutoGenerateProxyClasses($app['odm.debug']);
+            $config->setDefaultDB($app['odm.connection.dbname']);
             return $config;
         });
         // if you want to manage mongo db through the $app[console] , execute this function

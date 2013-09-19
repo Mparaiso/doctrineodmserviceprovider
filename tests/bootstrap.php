@@ -17,7 +17,9 @@ class Bootstrap
         $app["session.test"] = 1;
         $app->register(new ConsoleServiceProvider);
         $app->register(new DoctrineODMMongoDBServiceProvider, array(
-            "odm.connection.server" => "mongodb://camus:defender@paulo.mongohq.com:10012/silex-wiki",
+            "odm.connection.server" => getenv('ODM_MONGODB_TEST_CONNECTION_STRING'),
+            "odm.connection.dbname" => getenv('ODM_MONGODB_TEST_DATABASE_NAME'),
+            "odm.connection.options" => array('connect' => TRUE),
             "odm.proxy_dir" => __DIR__ . "/Proxy",
             "odm.driver.configs" => array(
                 "default" => array(

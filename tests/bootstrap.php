@@ -1,27 +1,32 @@
 <?php
-use Mparaiso\Provider\DoctrineORMServiceProvider;
+
+use Mparaiso\Provider\DoctrineODMMongoDBServiceProvider;
 use Mparaiso\Provider\ConsoleServiceProvider;
 
-!defined('ROOT_TEST_DIR') AND define('ROOT_TEST_DIR', __DIR__);
-$autoload = require(ROOT_TEST_DIR . '/../vendor/autoload.php');
-$autoload->add("", ROOT_TEST_DIR . '/../src/');
-$autoload->add("", ROOT_TEST_DIR . "/");
-function getApp()
-{
-    $app = new \Silex\Application();
-    $app["debug"]=TRUE;
-    $app->register(new ConsoleServiceProvider);
-    $app->register(new DoctrineORMServiceProvider, array(
-        "orm.connection" =>
-        array('driver' => "pdo_sqlite", 'path' => ROOT_TEST_DIR . '/database.sqlite'),
-        "orm.driver.configs"    => array(
-            "default" => array(
-                "namespace"=>"Entity",
-                "type"  => "yaml",
-                "paths" => array(ROOT_TEST_DIR . '/doctrine'),
-            )
-        )
-    ));
+$autoload = require(__DIR__ . '/../vendor/autoload.php');
+$autoload->add("", __DIR__);
 
-    return $app;
+class Bootstrap
+{
+
+    static function getApp()
+    {
+        $app = new \Silex\Application();
+        $app["debug"] = TRUE;
+        $app["session.test"] = 1;
+        $app->register(new ConsoleServiceProvider);
+        $app->register(new DoctrineODMMongoDBServiceProvider, array(
+            "odm.connection.server" => "mongodb://camus:defender@paulo.mongohq.com:10012/silex-wiki",
+            "odm.proxy_dir" => __DIR__ . "/Proxy",
+            "odm.driver.configs" => array(
+                "default" => array(
+                    "namespace" => "Entity",
+                    "path" => __DIR__ . "/Entity",
+                    "type" => "annotations"
+                )
+            )
+        ));
+
+        return $app;
+    }
 }

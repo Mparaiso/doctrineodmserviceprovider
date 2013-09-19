@@ -17,6 +17,21 @@ helps use Doctrine ODM with silex
 
 supports MongoDB
 
-### USAGE
+### BASIC USAGE
+
+ $app = new \Silex\Application();
+        $app->register(new DoctrineODMMongoDBServiceProvider, array(
+            "odm.connection.server" => getenv('ODM_MONGODB_TEST_CONNECTION_STRING'), // mongodb connection string
+            "odm.connection.dbname" => getenv('ODM_MONGODB_TEST_DATABASE_NAME'), // dbname
+            "odm.connection.options" => array('connect' => TRUE), // connection options
+            "odm.proxy_dir" => __DIR__ . "/Proxy", // Proxy dir
+            "odm.driver.configs" => array(
+                "default" => array(
+                    "namespace" => "Entity", // Entity Namespace
+                    "path" => __DIR__ . "/Entity", // Entity Directory
+                    "type" => "annotations" // Metadata driver ( 'yaml','xml' or 'annotations' )
+                )
+            )
+        ));
 
 ### CHANGE LOG

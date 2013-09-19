@@ -6,7 +6,7 @@ php:
     - 5.3
 # variables d'envirronement
 env:
-    - ODM_MONGODB_TEST_CONNECTION_STRING=tests ODM_MONGODB_TEST_DATABASE_NAME=localhost
+    - ODM_MONGODB_TEST_CONNECTION_STRING=localhost ODM_MONGODB_TEST_DATABASE_NAME=tests
 
 # install les packages avec composer
 before_script:

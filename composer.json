@@ -25,6 +25,9 @@
         "silex/silex": "1.*",
         "mparaiso/consoleserviceprovider": "*@dev"
     },
+    "provide": {
+        "ext-mongo": "*"
+    },
     "suggest": {},
     "autoload": {
         "psr-0": {

@@ -13,7 +13,7 @@ contact: mparaiso@online.fr
 
 status: work in progress
 
-helps use Doctrine ODM with silex
+helps use Doctrine ODM with silex , comes with complete too symfony integration.
 
 supports MongoDB
 

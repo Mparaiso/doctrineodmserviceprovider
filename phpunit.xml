@@ -1,6 +1,7 @@
 <phpunit
-    bootstrap="tests/bootstrap.php"
->
+        bootstrap="tests/Bootstrap.php"
+        color="false"
+        >
     <testsuites>
         <testsuite name="DoctrineOrmServiceProvider">
             <directory>tests</directory>

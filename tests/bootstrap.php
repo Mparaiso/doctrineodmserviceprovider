@@ -5,6 +5,7 @@ use Mparaiso\Provider\ConsoleServiceProvider;
 
 $autoload = require(__DIR__ . '/../vendor/autoload.php');
 $autoload->add("", __DIR__);
+$autoload->add("", __DIR__ . "/../src");
 
 class Bootstrap
 {
